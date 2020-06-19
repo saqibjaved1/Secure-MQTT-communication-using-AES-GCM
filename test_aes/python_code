@@ -1,0 +1,11 @@
+# Python code to change test vectors to '0x' form for Array initialization
+
+value = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b391aafd255"
+
+for index in range(2*len(value)-2):
+    if (~index%2):
+        if (index<=len(value)-1):
+            print '0x%s%s,'%(value[index], value[index+1]),
+
+length_array = len(value)/2
+print '\nSize of value array: %d'%length_array

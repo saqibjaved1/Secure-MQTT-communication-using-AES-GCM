@@ -1,0 +1,81 @@
+*******************************************************************************************
+							CHANGE LOG FOR AES-GCM FILES
+							Author: Saad Bin Shams
+							Latest Update Date/Time Stamp: 06/12/2018 01:56:56 AM  
+*******************************************************************************************
+
+06/08/2018 12:07:12 AM 
+- gcm.c :
+	- Line 94: for Big Endianess change uchar to uint8_t.
+	- Line 128: Changed the uchar data types to uint8_t. 
+	- Line 175: uint8_t for key.
+	- Line 181: uint8_t for h[16].
+	- Line 191: AES_128.set_key() to set_key() for my implementation. Same for next line. 
+	- Line 250: IV changed to uint8_t. Same for *add on line 252.
+	- Line 256: uint8_t working buffer. 
+	- Line 257: uint8_t for *p. 
+	- Line 291: Line has to be changed since, since now variables are uint8_t 
+	- Line 320: *input changed to uint8_t, same for *output. 
+	- Line 324: ectr[16] changed to uint8_t
+	
+06/08/2018 02:03:50 AM 
+XXXIMP: Issue found. We call set_key() function of AES-128.h which sets the key for the encryption. Whereas, in the next function we no longer have that key available to us. Therefore, like the implementation we need to pass on the keys to the next function using the gcm_context() structure. By introducing another variable in it. Which basically passes the key onto the next functions. 
+
+06/08/2018 04:49:01 AM 
+- gcm.c :
+	- Line 345: (uchar) cast has been changed to uint8_t
+	- Line 370: tag changed to uint8_t
+	- Line 373: work_bug changed to uint8_t
+	- Line 413: gcm_crypt_and_tag(), all the uchar has been changed to uint8_t
+	
+- gcm.h :
+	- All the uchar changed to uint8_t
+
+*************************************************************************************************
+
+06/08/2018 07:43:20 PM 
+	- Started again, First thing done is to look at the header and .c file of aes-gcm and make them consistent with passing a character value. 
+	- Changing the test_gcm.c to give in unsigned character inputs to the functions. 
+	
+	TO DO
+	- Going to write the AES Keys and all the variables and see if they were passed correctly or not. To the aes_gcm_encrypt function.  
+	- change all the uchars to unsigned chars in the gcm files. 
+	- Check and see if all the variables are passed correcly to the functions. 
+	
+06/09/2018 02:15:55 AM 
+	- Was able to run the set_key function without any problem. The encryption being done is correct for the key provided with the all zero 16 byte block size for the GHASH(0)
+	- Now going to determine if the function is working at gcm_start(). 
+	- gcm_start() is working fine. No problem seen here. 
+	- gcm_update() is working fine. 
+	- After removing tag, function stops at gcm_update();
+	- Followed and cleared all the warnings by the compiler. It solved quite a lot of problems but was still receiving Segmentation Fault. 
+	- Using the printf() debugging reached the function gcm_finish();
+	- The problem was the "tag_buf" variable. Since this was defined as a NULL variable, the program was trying to access memory which was not defined and was therefore producing a segmentation fault. 
+	- After this the entire program started working but the tag was not correct. 
+	
+06/11/2018 12:57:41 AM 
+	- The entire program is running. There are no more issues that I can see. Tested, the second test vector and it is producing all the correct outputs. 
+	- The problem of the tag was corrected by two things. 
+	- Firstly, for printing variables in the gcm_update(); the loop variable was 'i' which was a local variable being used inside the function and therefore was messing with the function itself. Which was infact being used to calcualte the GHASH of the GMAC chain. 
+	- Secondly, the warning for tag_buf was cleared by allocating memory for the variable. 
+	- Now the program seems to be running perfectly. 
+
+**************************************************************************************************
+
+06/11/2018 05:07:26 AM 
+	- A problem presented itself, firstly the cipher text size printed in "Back in the Main Function" was small. Then the tag which is calculated is not correct. 
+	- Cipher Text Size was corrected.
+	- Cipher Text is not correct and the tag is not correct.
+	- IV was accidently copied to the Plain Text array. When corrected, it is now working perfectly for 'Test Case 3'.
+	
+06/11/2018 05:37:35 AM 
+	- Tested Case 4: With additional data and longer plain text, the tag calculated and cipher text is the same as the test cases in the PDF.  
+
+**************************************************************************************************
+
+06/12/2018 01:36:37 AM 
+	- The functions now work without "aes.h" and "aes.c" files. No issues seen.
+	- I dont think we need to reduce the code anymore. 
+	
+	
+	
